@@ -1,7 +1,7 @@
 import streamlit as st
 from rag_chatbot import ragChatbot
 
-st.set_page_config(page_title="CAI (S1-24) | Assignment 2 | Group 51")
+st.set_page_config(page_title="CAI (S1-24) | Group 51 | Assignment 2")
 
 st.markdown(
     """

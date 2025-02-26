@@ -45,8 +45,6 @@ class AdvanceChatbot (BasicChatbot):
     def answer(self, query, threshold = 0.5):
         # get results using multi stage retrieval
         results = self.__multi_stage_retrieval(query)
-        # threshold for relevance
-        threshold = 0.5
         relevant_results = self.__filter_relevant_retrievals(results, query, threshold)
         print(relevant_results)
         # generate response

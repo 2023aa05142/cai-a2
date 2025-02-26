@@ -15,9 +15,17 @@ class DocumentStore:
         self.vector_db = None
         self.all_chunks = []
 
-    def __extract_text_from_pdf(self, pdf_path: str) -> str:
+    def __extract_text_from_pdf22222(self, pdf_path: str) -> str:
         text = ""
         with fitz.open(pdf_path) as doc:
+            for page in doc:
+                text += page.get_text()
+        return text
+
+    def __extract_text_from_pdf_content(self, content):
+        text = ""
+        pdf_stream = BytesIO(content)
+        with fitz.open(stream=pdf_stream, filetype="pdf") as doc:
             for page in doc:
                 text += page.get_text()
         return text
@@ -28,11 +36,11 @@ class DocumentStore:
         text = text.strip()
         return text
 
-    def __save_cleaned_text(self, text: str, output_path: str) -> None:
+    def __save_cleaned_text22222(self, text: str, output_path: str) -> None:
         with open(output_path, 'w', encoding='utf-8') as f:
             f.write(text)
 
-    def __preprocess_pdfs(self, input_dir: str, output_dir: str) -> List[Dict[str, str]]:
+    def __preprocess_pdfs22222(self, input_dir: str, output_dir: str) -> List[Dict[str, str]]:
         results = []
 
         for pdf_file in tqdm(Path(input_dir).glob("*.pdf"), desc="Processing PDFs"):
@@ -68,14 +76,6 @@ class DocumentStore:
         index.add(embeddings)
         return index
     
-    def __extract_text_from_pdf_content(self, content):
-        text = ""
-        pdf_stream = BytesIO(content)
-        with fitz.open(stream=pdf_stream, filetype="pdf") as doc:
-            for page in doc:
-                text += page.get_text()
-        return text
-
     def __preProcessDocument(self, name, content):
         cleaned_text = ""
         raw_text = self.__extract_text_from_pdf_content(content)
@@ -101,7 +101,7 @@ class DocumentStore:
         self.vector_db = self.__create_vector_database(embeddings)
         print("Embeddings generated.")
 
-    def build(self, in_dirs, out_dirs):
+    def build1234344(self, in_dirs, out_dirs):
         # Step 1: Preprocess PDFs
         results = self.__preprocess_pdfs(in_dirs, out_dirs)
         if (len(results) > 1) :

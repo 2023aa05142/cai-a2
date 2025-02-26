@@ -18,18 +18,37 @@ class AdvanceChatbot (BasicChatbot):
         top_indices = np.argsort(scores)[::-1][:top_k]
         return [self.store.all_chunks[i] for i in top_indices]
 
-    def __re_rank(self, query: str, initial_results: List[str], model_name: str = "sentence-transformers/all-MiniLM-L6-v2") -> List[str]:
-        #model = SentenceTransformer(model_name)
+    def __re_rank(self, query: str, initial_results: List[str]) -> List[str]:
         query_embedding = self.store.model.encode([query], convert_to_numpy=True)
         result_embeddings = self.store.model.encode(initial_results, convert_to_numpy=True)
         similarities = cosine_similarity(query_embedding, result_embeddings)[0]
         ranked_indices = np.argsort(similarities)[::-1]
         return [initial_results[i] for i in ranked_indices]
 
-    def answer(self, query):
+    def __multi_stage_retrieval(self, query: str) -> List[str]:
+        # Stage 1: BM25 retrieval
         bm25_results = self.__bm25_search(query)
+        # Stage 2: Embedding-based retrieval
         embedding_results = self._retrieve_similar_chunks(query)
+        # Combine and deduplicate results
         combined_results = bm25_results + embedding_results
-        results = self.__re_rank(query, combined_results)
-        response, confidence = self._generate_response(results, query)
+        # Stage 3: Re-rank results
+        return self.__re_rank(query, combined_results)
+
+    def __filter_relevant_retrievals(self, responses: List[str], query: str, threshold) -> List[str]:
+        query_embedding = self.store.model.encode([query], convert_to_numpy=True)
+        response_embeddings = self.store.model.encode(responses, convert_to_numpy=True)
+        similarities = cosine_similarity(query_embedding, response_embeddings)[0]
+        filtered_responses = [response for i, response in enumerate(responses) if similarities[i] >= threshold]
+        return filtered_responses
+
+    def answer(self, query, threshold = 0.5):
+        # get results using multi stage retrieval
+        results = self.__multi_stage_retrieval(query)
+        # threshold for relevance
+        threshold = 0.5
+        relevant_results = self.__filter_relevant_retrievals(results, query, threshold)
+        print(relevant_results)
+        # generate response
+        response, confidence = self._generate_response(relevant_results, query)
         return ChatbotResponse(query=query, answer=response, confidence=confidence, chunks=results[:5])

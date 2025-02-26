@@ -15,7 +15,6 @@ class BasicChatbot:
         self.llm = llm
     
     def _retrieve_similar_chunks(self, query: str, top_k: int = 5) -> List[str]:
-        #model = SentenceTransformer(model_name)
         query_embedding = self.store.model.encode([query], convert_to_numpy=True)
         distances, indices = self.store.vector_db.search(query_embedding, top_k)
         return [self.store.all_chunks[i] for i in indices[0]]
@@ -46,7 +45,7 @@ class BasicChatbot:
 
         return response, confidence
 
-    def answer(self, query):
+    def answer(self, query, threshold = 0.5):
         results = self._retrieve_similar_chunks(query)
         response, confidence = self._generate_response(results, query)
         return ChatbotResponse(query=query, answer=response, confidence=confidence, chunks=results[:5])

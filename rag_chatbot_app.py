@@ -4,6 +4,30 @@ from transformers import AutoTokenizer, AutoModelForCausalLM, AutoModelForSeq2Se
 from document_store import DocumentStore
 from basic_chatbot import BasicChatbot
 from advance_chatbot import AdvanceChatbot
+from guard_rail import GuardRail
+
+from transformers import pipeline, AutoTokenizer, AutoModelForSequenceClassification, AutoModelForCausalLM
+
+def validate_query_with_model(query: str, validation_model_name: str = "facebook/bart-large-mnli") -> bool:
+    classifier = pipeline("zero-shot-classification", model=validation_model_name)
+    candidate_labels = ["financial question", "irrelevant", "harmful"]
+    result = classifier(query, candidate_labels)
+    top_label = result["labels"][0]
+    return top_label == "financial question"
+
+def filter_response(response: str, filtering_model_name: str = "facebook/bart-large-mnli") -> bool:
+    """
+    Filters generated responses using a zero-shot classification model to ensure relevance and correctness.
+
+    :param response: Generated response to validate.
+    :param filtering_model_name: Pre-trained model for classification.
+    :return: True if the response is valid, False otherwise.
+    """
+    classifier = pipeline("zero-shot-classification", model=filtering_model_name)
+    candidate_labels = ["relevant", "hallucinated", "misleading"]
+    result = classifier(response, candidate_labels)
+    top_label = result["labels"][0]
+    return top_label == "relevant"
 
 # Load a Small Open-Source Language Model
 @st.cache_resource
@@ -20,7 +44,8 @@ def getChatbot(index):
     tokenizer, model = load_language_model()
     store = DocumentStore()
     chatbots = [BasicChatbot(store, tokenizer, model), AdvanceChatbot(store, tokenizer, model)]
-    return store, chatbots[index]
+    guardrail = GuardRail()
+    return store, guardrail, chatbots[index]
     #return store, None
 
 st.set_page_config(page_title="CAI (S1-24) | Group 51 | Assignment 2")
@@ -56,7 +81,7 @@ if 'selected_technique_index' not in st.session_state or st.session_state.select
     st.session_state.selected_technique_index = selected_technique_index
     #st.write(f"Selected technique index: {st.session_state.selected_technique_index}")
 
-store, chatbot = getChatbot(selected_technique_index)
+store, guardrail, chatbot = getChatbot(selected_technique_index)
 
 if uploaded_files:
     isDocumentAdded = False
@@ -126,17 +151,23 @@ if prompt := st.chat_input("What is up?"):
         st.markdown(prompt)
 
     with st.chat_message("assistant"):
+        message = "This financial question is not allowed being either irrelevant or harmful."
         message_placeholder = st.empty()
-        response = chatbot.answer(prompt)
-        confidence = "{:.2f}".format(response.confidence*100)
+        result, _ = guardrail.validate_input(prompt)
+        if (result):
+            response = chatbot.answer(prompt)
+            answer = response.answer
+            confidence = "{:.2f}".format(response.confidence*100)
 
-        print(response.answer)
-        print(confidence)
-        for i, chunk in enumerate(response.chunks[:5]):
-            print(f"**Result {i+1}:**")
-            print(chunk)
+            print(answer)
+            print(confidence)
+            for i, chunk in enumerate(response.chunks[:5]):
+                print(f"**Result {i+1}:**")
+                print(chunk)
 
-        message = response.answer+'<br/><sup style="font-size:0.7em">Confidence: '+confidence+'%</sup>'
-        #message = "Error"
+            result, _ = guardrail.validate_response(answer)
+            message = "The response of this question is not allowed as it contains either hallucinated or misleading information."
+            if (result):
+                message = answer+'<br/><sup style="font-size:0.7em">Confidence: '+confidence+'%</sup>'
         message_placeholder.markdown(message, unsafe_allow_html=True)
     st.session_state.messages.append({"role": "assistant", "content": message})

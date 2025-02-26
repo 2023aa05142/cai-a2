@@ -8,21 +8,21 @@ from guard_rail import GuardRail
 # Load a Small Open-Source Language Model
 @st.cache_resource
 def load_language_model(model_name: str = "google/flan-t5-base"):
+    print("::load_language_model")
     tokenizer = AutoTokenizer.from_pretrained(model_name)
     #model = AutoModelForCausalLM.from_pretrained(model_name)
     model = AutoModelForSeq2SeqLM.from_pretrained(model_name)
-    #tokenizer, model = None, None
     return tokenizer, model
 
 @st.cache_resource
 def getChatbotResources(index):
+    print("::getChatbotResources")
     # Load the language model
     tokenizer, model = load_language_model()
     store = DocumentStore()
     chatbots = [BasicChatbot(store, tokenizer, model), AdvanceChatbot(store, tokenizer, model)]
     guardrail = GuardRail()
     return store, guardrail, chatbots[index]
-    #return store, None
 
 st.set_page_config(page_title="CAI (S1-24) | Group 51 | Assignment 2")
 
@@ -37,9 +37,6 @@ st.markdown(
     """,
     unsafe_allow_html=True)
 
-#st.title("Conversational AI (S1-24) | Assignment 2 | Group 51")
-#st.title("CAI (S1-24) | Assignment 2 | Group 51")
-#st.header("Chatbot by Group 51")
 st.subheader("Group 51's Chatbot")
 
 st.sidebar.header("Chatbot settings")

@@ -52,7 +52,9 @@ class AdvanceChatbot (BasicChatbot):
         # get results using multi stage retrieval
         results = self.__multi_stage_retrieval(query)
         relevant_results = self.__filter_relevant_retrievals(results, query, threshold)
-        print(relevant_results)
-        # generate response
+        print("relevant_results: ", relevant_results)
+        if (len(relevant_results) == 0):
+            return ChatbotResponse(query=query, answer="Unable to find answer to this irrelevant question.", confidence=0.0, chunks=results[:5])
+         # generate response
         response, confidence = self._generate_response(relevant_results, query)
         return ChatbotResponse(query=query, answer=response, confidence=confidence, chunks=results[:5])

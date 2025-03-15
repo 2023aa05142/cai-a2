@@ -51,5 +51,8 @@ class BasicChatbot:
     def answer(self, query, threshold = 0.5):
         print("BasicChatbot::answer")
         results = self._retrieve_similar_chunks(query)
+        print("results: ", results)
+        if (len(results) == 0):
+            return ChatbotResponse(query=query, answer="", confidence=0.0, chunks=results[:5])
         response, confidence = self._generate_response(results, query)
         return ChatbotResponse(query=query, answer=response, confidence=confidence, chunks=results[:5])

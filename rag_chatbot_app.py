@@ -89,19 +89,22 @@ if prompt := st.chat_input("What is up?"):
     with st.chat_message("assistant"):
         message = "This financial question is not allowed being either irrelevant or harmful."
         message_placeholder = st.empty()
-        result, _ = guardrail.validate_input(prompt)
-        if (result):
-            response = chatbot.answer(prompt, threshold)
-            answer = response.answer
-            confidence = "{:.2f}".format(response.confidence*100)
-            print(f"Answer: {answer}\nConfidence: {confidence}")
-            # a 0 confidence score suggest there is not match found the documents
-            if (response.confidence == 0.0):
-                message = "Unable to find answer to this irrelevant question."
-            else:
-                result, _ = guardrail.validate_response(answer)
-                message = "The response of this question is not allowed as it contains either hallucinated or misleading information."
-                if (result):
-                    message = answer+'<br/><sup style="font-size:0.7em">Confidence: '+confidence+'%</sup>'
+        if (len(store.documents) == 0):
+            message = "There is no financial statement(s) available to answer this question."
+        else:
+            result, _ = guardrail.validate_input(prompt)
+            if (result):
+                response = chatbot.answer(prompt, threshold)
+                answer = response.answer
+                confidence = "{:.2f}".format(response.confidence*100)
+                print(f"Answer: {answer}\nConfidence: {confidence}")
+                # a 0 confidence score suggest there is not match found the documents
+                if (response.confidence == 0.0):
+                    message = "Unable to find answer to this irrelevant question."
+                else:
+                    result, _ = guardrail.validate_response(answer)
+                    message = "The response of this question is not allowed as it contains either hallucinated or misleading information."
+                    if (result):
+                        message = answer+'<br/><sup style="font-size:0.7em">Confidence: '+confidence+'%</sup>'
         message_placeholder.markdown(message, unsafe_allow_html=True)
     st.session_state.messages.append({"role": "assistant", "content": message})

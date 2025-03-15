@@ -1,9 +1,5 @@
 streamlit==1.42.0
 transformers==4.48.3
 sentence_transformers==3.4.1
-re==2.2.1
-fitz==1.25.3
 tqdm==4.66.4
-faiss==1.10.0
 torch==2.4.1
-sklearn==1.4.1

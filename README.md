@@ -1,8 +1,11 @@
 # Assignment 2 - RAG Chatbot
 Develop a Retrieval-Augmented Generation (RAG) model to answer financial questions based on company financial statements (last two years).
 
-## Chatbot's link
-https://group-51-cai-a2-chatbot.streamlit.app/
+## Chatbot's links
+
+***GitHub repository link***: https://github.com/2023aa05142/cai-a2
+
+***Streamlit App link***: https://group-51-cai-a2-chatbot.streamlit.app/
 
 Chatbot developed by Group-51 is hosted as a **Streamlit** application.
 

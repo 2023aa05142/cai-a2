@@ -23,7 +23,7 @@ Chatbot developed by Group-51 is hosted as a **Streamlit** application.
 
 **Chatbot responses:**
 
-<img style="margin-left:32pt" src="./content/q1.png" alt="An irrelevant question" width="80%" height="80%">
+<img style="margin-left:32pt" src="./content/q1.png" alt="Relevant financial questions (high-confidence)" width="80%" height="80%">
 
 ### Relevant financial questions (low-confidence).
 
@@ -34,7 +34,7 @@ Chatbot developed by Group-51 is hosted as a **Streamlit** application.
 
 **Chatbot responses:**
 
-<img style="margin-left:32pt" src="./content/q2.png" alt="An irrelevant question" width="80%" height="80%">
+<img style="margin-left:32pt" src="./content/q2.png" alt="Relevant financial questions (low-confidence)" width="80%" height="80%">
 
 ### Irrelevant questions
 
@@ -50,4 +50,4 @@ Chatbot developed by Group-51 is hosted as a **Streamlit** application.
 
 **Chatbot responses:**
 
-<img style="margin-left:32pt" src="./content/q3.png" alt="An irrelevant question" width="80%" height="80%">
+<img style="margin-left:32pt" src="./content/q3.png" alt="Irrelevant questions" width="80%" height="80%">
